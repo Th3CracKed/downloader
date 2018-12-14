@@ -6,7 +6,11 @@
 package downloader.ui;
 
 import downloader.fc.Downloader;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -17,11 +21,12 @@ public class DownloaderView {
     
     private final ProgressBar progressBar;
     private final Downloader downloader;
+    private Button play;
+    private Button pause;
     
     public DownloaderView(VBox vBox,String url){
         progressBar = new ProgressBar(0);
-        progressBar.prefWidthProperty().bind(vBox.widthProperty().subtract(2));
-        vBox.getChildren().add(progressBar);
+        setupView(vBox,url);
         downloader = new Downloader(url);
     }
     
@@ -31,11 +36,24 @@ public class DownloaderView {
         String filename = "";
         try {
                 filename = downloader.download();
-        }catch(Exception e) {
+        }catch(InterruptedException e) {
                 System.err.println("failed!");
         }
         System.out.format("into %s\n", filename);
         System.out.println("path : "+filename);
+    }
+    
+    private void setupView(VBox vBox,String url){
+        progressBar.prefWidthProperty().bind(vBox.widthProperty().subtract(2));
+        play = new Button(">");
+        play.setMinSize(35, 35);
+        pause = new Button("X");
+        pause.setMinSize(35, 35);
+        HBox hbox = new HBox(progressBar,play,pause);
+        hbox.setAlignment(Pos.CENTER);
+        Label urlLabel = new Label(url);
+        VBox vboxBody = new VBox(urlLabel,hbox);
+        vBox.getChildren().add(vboxBody);
     }
     
     public ProgressBar getProgressBar(){
@@ -46,7 +64,15 @@ public class DownloaderView {
         return downloader;
     }
 
-    void setProgress(Number n) {
+    public Button getPlay() {
+        return play;
+    }
+
+    public Button getPause() {
+        return pause;
+    }
+
+    public void setProgress(Number n) {
         progressBar.setProgress(n.doubleValue());
     }
 }

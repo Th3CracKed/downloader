@@ -5,12 +5,14 @@
  */
 package downloader.ui;
 
-import java.util.List;
 import java.util.regex.Pattern;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -33,14 +35,17 @@ public class Main  extends Application {
         for(String param : getParameters().getRaw()){
             runOnThread(param);
         }
-        //runOnThread("http://iihm.imag.fr/index.html");
-        //TODO recuperer et lancer un thread pour chaque URL
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(vBox);
         scrollPane.setFitToWidth(true);
         TextField champUrl = new TextField();
         champUrl.setPromptText("Enter a URL");
         Button ajouterBtn = new Button("Add");
+        ajouterBtn.setOnAction((ActionEvent event) -> {
+            String url = champUrl.getText();
+            runOnThread(url);
+            champUrl.clear();
+        });
         BorderPane bottomBar = new BorderPane();
         bottomBar.setCenter(champUrl);
         bottomBar.setRight(ajouterBtn);
@@ -61,8 +66,12 @@ public class Main  extends Application {
             launch(args);
     }
     
-    
+    /**
+     * permet de lancer un telechargement et l'ajouter à l'interface 
+     * @param url le lien a telechargé
+     */
     private void runOnThread(String url){
+        url = url.trim();//supprimer les espaces du lien 
         if(isValidUrl(url)) {
             DownloaderView downloaderView = new DownloaderView(vBox, url);
                new Thread(){
@@ -77,8 +86,9 @@ public class Main  extends Application {
                         downloaderView.setProgress(n);
                     });
                });
+        }else{
+            showAlert(url);
         }
-        
     }
     
     /**
@@ -96,6 +106,17 @@ public class Main  extends Application {
             System.out.println(url +" n'est pas un lien valide");
             return false;
         }
+    }
+    /**
+     * Afficher une alerte si le lien n'est pas valide
+     * @param url le ligne qui n'est pas valide
+     */
+    private void showAlert(String url) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("ERROR");
+        alert.setHeaderText("Url Incorrect");
+        alert.setContentText("Verifiez si ce lien est correcte : "+url);
+        alert.showAndWait();
     }
     
 }
