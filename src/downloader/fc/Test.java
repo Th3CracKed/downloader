@@ -3,12 +3,13 @@ package downloader.fc;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class Test extends Application {
+public class Test extends Application  implements DownloadStatus{
+        @Override
 	public void start(Stage stage) {
 		for(String url: getParameters().getRaw()) {
 			Downloader downloader;
 			try {
-				downloader = new Downloader(url);
+				downloader = new Downloader(url,this);
 			}
 			catch(RuntimeException e) {
 				System.err.format("skipping %s %s\n", url, e);
@@ -25,7 +26,7 @@ public class Test extends Application {
 			try {
 				filename = downloader.download();
 			}
-			catch(Exception e) {
+			catch(InterruptedException e) {
 				System.err.println("failed!");
 				continue;
 			}
@@ -38,4 +39,25 @@ public class Test extends Application {
 	public static void main(String argv[]) {
 		launch(argv);
 	}
+
+    @Override
+    public void onPause() {
+    }
+
+    @Override
+    public void onResume() {
+    }
+
+    @Override
+    public void onSucceed() {
+    }
+
+    @Override
+    public void onCancel() {
+    }
+
+    @Override
+    public void onInvalidLink() {
+        
+    }
 }
